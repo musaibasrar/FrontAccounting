@@ -1,0 +1,80 @@
+Expenses: dbad debt
+
+
+/var/www/html/frontaccounting/themes/canvas/images
+
+
+logo changes : /var/www/html/frontaccounting/themes/default/images
+logout.php : /var/www/html/frontaccounting/access : (Thanks for using)
+//optional footer.inc : /var/www/html/frontaccounting/includes/page 
+config.php : /var/www/html/frontaccounting : $app_title = "FrontAccounting"; , $power_by = "FrontAccounting"; $power_url = "http://frontaccounting.com";$help_base_url="http://ideoholic.com/contact.html?";
+items_db.inc : if (isset($SysPrefs->max_rows_in_search))
+		$limit = $SysPrefs->max_rows_in_search;
+	else
+		$limit = 10;
+
+	$sql .= " GROUP BY i.item_code ORDER BY i.description LIMIT 0,".(int)($limit=50);
+frontaccounting\includes\ui\ui_lists.inc: 
+
+if ($opts['type'] == 0) {
+    $by_id = true;
+    $class = 'combo3';
+  } elseif($opts['type'] == 1) {
+    $by_id = false;
+    $class = 'combo2';
+  } else {
+    $by_id = true;
+    $class = 'combo3';
+  }
+
+items_db.inc:
+	   function get_items_search($description, $type)
+			$sql = "
+             SELECT i.item_code, i.description,c.description category, p.price 
+             FROM
+              0_stock_category c,0_stock_master s ,0_item_codes i
+              LEFT JOIN 
+                   0_prices p   ON    i.stock_id=p.stock_id
+              WHERE i.stock_id=s.stock_id
+              AND (  i.item_code LIKE " . db_escape("%" . $description. "%") . " OR 
+        i.description LIKE " . db_escape("%" . get_post("description"). "%") . " )" ;
+
+
+frontaccounting/inquiry/stock_list.php :
+$th = array("", _("Item Code"), _("Description"), _("Category"), _("price"));
+table_header($th);
+
+$k = 0;
+$name = $_GET["client_id"];
+$result = get_items_search(get_post("description"), @$_GET['type']);
+
+while ($myrow = db_fetch_assoc($result))
+{
+  alt_table_row_color($k);
+  $value = $myrow['item_code'];
+  if ($mode != 0) {
+    $text = $myrow['description'];
+      ahref_cell(_("Select"), 'javascript:void(0)', '', 'setComboItem(window.opener.document, "'.$name.'",  "'.$value.'", "'.$text.'","'.$price.'")');
+  }
+  else {
+      ahref_cell(_("Select"), 'javascript:void(0)', '', 'selectComboItem(window.opener.document, "'.$name.'", "'.$value.'","'.$text.'","'.$price.'")');
+  }
+    label_cell($myrow["item_code"]);
+  label_cell($myrow["description"]);
+    label_cell($myrow["category"]);
+    label_cell($myrow["price"]);
+  end_row();
+}
+
+
+
+
+mysqldump -u curium -p ibc > ~/frontaccounting/afterConfig_21042019.sql
+
+
+185.176.43.84
+
+settings
+1. in item tax type choose regular as exempted from tax.
+2. Delete/Update bank account in banking and ledger section
+
